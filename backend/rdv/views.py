@@ -99,26 +99,54 @@ def register_patient(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_medecin(request):
-
+    print(request.data)
     email = request.data.get('email')
     password = request.data.get('password')
     nom = request.data.get('nom')
     prenom = request.data.get('prenom')
     telephone = request.data.get('telephone')
-    specialite = request.data.get('specialite')
+    specialite_id = request.data.get('specialite')
 
-    if User.objects.filter(username=email).exists():
-            return Response(
-                {"error": "Email existe déjà"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+
+    if User.objects.filter(email=email).exists():
+        return Response(
+            {"error": "Email existe déjà"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 
     user = User.objects.create_user(
-            username=email,  # ← email comme username
-            email=email,
-            password=password,
-            role="medecin"
+        username=email,
+        email=email,
+        password=password,
+        role="medecin"
+    )
+
+
+    specialite = None
+
+    if specialite_id:
+        specialite = Specialite.objects.get(
+            id=specialite_id
         )
+
+
+    Medecin.objects.create(
+        user=user,
+        nom=nom,
+        prenom=prenom,
+        telephone=telephone,
+        specialite=specialite
+    )
+
+
+    return Response(
+        {
+            "message": "Médecin créé avec succès",
+            "email": email
+        },
+        status=status.HTTP_201_CREATED
+    )
 # @api_view(['POST'])
 # def register_medecin(request):
 #
@@ -146,22 +174,22 @@ def register_medecin(request):
 #         role="medecin"
 #     )
 
-
-    Medecin.objects.create(
-        user=user,
-        nom=nom,
-        prenom=prenom,
-        telephone=telephone,
-        specialite_id=specialite
-    )
-
-
-    return Response(
-        {
-            "message": "Médecin créé avec succès"
-        },
-        status=status.HTTP_201_CREATED
-    )
+    #
+    # Medecin.objects.create(
+    #     user=user,
+    #     nom=nom,
+    #     prenom=prenom,
+    #     telephone=telephone,
+    #     specialite_id=specialite
+    # )
+    #
+    #
+    # return Response(
+    #     {
+    #         "message": "Médecin créé avec succès"
+    #     },
+    #     status=status.HTTP_201_CREATED
+    # )
 
 
 
@@ -291,8 +319,7 @@ class SpecialiteViewSet(viewsets.ModelViewSet):
 
     queryset = Specialite.objects.all()
     serializer_class = SpecialiteSerializer
-    permission_classes = [IsAuthenticated]
-
+    permission_classes = [AllowAny]
 
 
 # =========================

@@ -65,8 +65,10 @@ class SpecialiteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Specialite
-        fields = "__all__"
-
+        fields = [
+            "id",
+            "libelle"
+        ]
 
 
 class EtablissementSerializer(serializers.ModelSerializer):

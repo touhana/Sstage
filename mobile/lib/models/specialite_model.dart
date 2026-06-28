@@ -1,28 +1,22 @@
 class Specialite {
 
   final int id;
-
   final String libelle;
 
 
   Specialite({
-
     required this.id,
-
     required this.libelle,
-
   });
 
 
-  factory Specialite.fromJson(
-      Map<String, dynamic> json
-      ) {
+  factory Specialite.fromJson(Map<String,dynamic> json){
 
     return Specialite(
 
-      id: json["id"],
+      id: json['id'],
 
-      libelle: json["libelle"],
+      libelle: json['libelle'],
 
     );
 

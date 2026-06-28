@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../theme/app_colors.dart';
 import 'login_screen.dart';
-
+import '../models/specialite_model.dart';
+import '../services/specialite_service.dart';
 class RegisterMedecinScreen extends StatefulWidget {
   const RegisterMedecinScreen({super.key});
 
@@ -21,18 +22,34 @@ class _RegisterMedecinScreenState
   final _confirmPasswordController = TextEditingController();
 
   String? _specialiteChoisie;
-  bool _loading = false;
+@override
+void initState() {
 
-  final List<Map<String, dynamic>> _specialites = [
-    {"id": 1, "nom": "Médecine générale"},
-    {"id": 2, "nom": "Cardiologie"},
-    {"id": 3, "nom": "Pédiatrie"},
-    {"id": 4, "nom": "Dermatologie"},
-    {"id": 5, "nom": "Gynécologie"},
-    {"id": 6, "nom": "Ophtalmologie"},
-    {"id": 7, "nom": "Orthopédie"},
-    {"id": 8, "nom": "Neurologie"},
-  ];
+  super.initState();
+
+  chargerSpecialites();
+
+}
+List<Specialite> _specialites = [];
+
+bool _loadingSpecialites = true;
+  bool _loading = false;
+Future<void> chargerSpecialites() async {
+
+  final liste =
+      await SpecialiteService.getSpecialites();
+
+
+  setState(() {
+
+    _specialites = liste;
+
+    _loadingSpecialites = false;
+
+  });
+
+}
+
 
   Future<void> _inscrire() async {
     if (_nomController.text.isEmpty ||
@@ -70,8 +87,7 @@ class _RegisterMedecinScreenState
         "email": _emailController.text,
         "telephone": _telephoneController.text,
         "password": _passwordController.text,
-        "specialite": _specialiteChoisie,
-      });
+"specialite": int.parse(_specialiteChoisie!),      });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -167,12 +183,12 @@ class _RegisterMedecinScreenState
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: _specialites.map((s) {
-                  return DropdownMenuItem<String>(
-                    value: s["id"].toString(),
-                    child: Text(s["nom"]),
-                  );
-                }).toList(),
+              items: _specialites.map((s) {
+  return DropdownMenuItem<String>(
+    value: s.id.toString(),
+    child: Text(s.libelle),
+  );
+}).toList(),
                 onChanged: (val) =>
                     setState(() => _specialiteChoisie = val),
               ),
